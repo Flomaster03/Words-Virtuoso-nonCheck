@@ -1,0 +1,39 @@
+import java.io.File
+
+var nameFile = "" //путь + имя найденного файла
+
+fun main() {
+    val file = "Input the words file:".toInput()
+    checkInput(file)
+}
+
+//проверка входного файла и слов, находящихся в нем
+fun checkInput(name: String) {
+    if (name.isInTree()) checkWordsInFile(nameFile)
+}
+
+//печать строки, сохранение ввода пользователя в переменную и удаление пробелов
+fun String.toInput() = println(this).run { readln() }.trim()
+
+// проверка, есть ли такой файл в дереве корневого каталога.
+fun String.isInTree(): Boolean {
+    val rootDir = File(System.getProperty("user.dir")) //корневой каталог
+    for (i in rootDir.walkBottomUp()) {
+        if (i.name == this) {
+            nameFile = i.toString()
+            return true
+        }
+    }
+    println("Error: The words file $this doesn't exist.")
+    return false
+}
+
+//проверка слов в файле
+fun checkWordsInFile(name: String) {
+    val countInvalidWords = File(name).readLines().count { it.isInvalidInput() }
+    println(if (countInvalidWords == 0) "All words are valid!"
+    else "Warning: $countInvalidWords invalid words were found in the $name file.")
+}
+
+//проверка слова: true - не соответствует, false - валидное слово
+fun String.isInvalidInput(): Boolean = this.length != 5 || this.lowercase().contains("[^a-z]+".toRegex()) || this.lowercase().toSet().size != 5
