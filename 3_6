@@ -1,0 +1,46 @@
+import java.io.File
+
+val namesOfFile = mutableListOf<String>()  // путь + имя файла
+
+fun main(args: Array<String>) {
+    println(checkInput(args))
+}
+
+//проверка входного файла и слов, находящихся в нем
+fun checkInput(args: Array<String>): String {
+    if (args.size != 2) return "Error: Wrong number of arguments."
+    for (i in args.indices) {
+        if (!args[i].isInTree()) return "Error: The ${if (i == 1) "candidate " else ""}words file ${args[i]} doesn't exist."
+    }
+    for (i in namesOfFile.indices) {
+        val count = namesOfFile[i].findCountOfInvalidWords()
+        if (count != 0) return "Error: $count invalid words were found in the ${args[i]} file."
+    }
+    val countOfWords = countContainWords()
+    if (countOfWords > 0) return "Error: $countOfWords candidate words are not included in the ${args[0]} file."
+    return "Words Virtuoso"
+}
+
+//печать строки, сохранение ввода пользователя в переменную и удаление пробелов
+fun String.toInput() = println(this).run { readln() }.trim()
+
+// проверка, есть ли такой файл в дереве корневого каталога.
+fun String.isInTree(): Boolean {
+    val rootDir = File(System.getProperty("user.dir")) //корневой каталог
+    for (i in rootDir.walkBottomUp()) {
+        if (i.name == this) {
+            namesOfFile.add(i.toString())  //добавление имени файла с путем к нему в лист
+            return true
+        }
+    }
+    return false
+}
+
+//подсчет количества неправильных слов в файле
+fun String.findCountOfInvalidWords(): Int = File(this).readLines().count { it.isInvalidInput() }
+
+//проверка слова: true - не соответствует, false - валидное слово
+fun String.isInvalidInput(): Boolean = this.length != 5 || this.lowercase().contains("[^a-z]+".toRegex()) || this.lowercase().toSet().size != 5
+
+// проверка, что все слова - кандидаты имеются в файле с общими словами
+fun countContainWords(): Int = File(namesOfFile[1]).readLines().let { it.size - File(namesOfFile[0]).readLines().intersect(it.toSet()).size }
