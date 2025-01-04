@@ -1,0 +1,17 @@
+package wordsvirtuoso
+
+fun main() {
+    val input = "Input a 5-letter string:".toInput()
+    checkInput(input.lowercase())
+}
+
+fun checkInput(input: String) {
+    println(when {
+        input.length != 5 -> "The input isn't a 5-letter string."
+        input.contains("[^a-z]+".toRegex()) -> "The input has invalid characters."
+        input.toSet().size != 5 -> "The input has duplicate letters."
+        else -> "The input is a valid string."
+    })
+}
+
+fun String.toInput() = println(this).run { readln() }.trim()
